@@ -1,12 +1,12 @@
 #include <Arduino.h>
 
-#define SERIALON true       // Set tp true to turn Serial communication on, false for off
-#define DEBUG false         // Set to true to send debug information over Serial. Turn off if collecting data over Serial.
+#define SERIALON true        // Set tp true to turn Serial communication on, false for off
+#define DEBUG false          // Set to true to send debug information over Serial. Turn off if collecting data over Serial.
 #define DATAMODESERIAL false // Set to true to enable sending data over serial, false to deploy sensor and send data to InfluxDB
-#define PREPROCESSING true // Set to true to enable on-board pre processing
-#define FFTON false         // Set to true to enable FFT pre processing (CURRENTLY UNAVBAILABLE)
-#define NNON true          // Set to true to enable TinyML
-#define NORMALIZE false     // Set to true to normalize values before feeding to Neural Network
+#define PREPROCESSING true   // Set to true to enable on-board pre processing
+#define FFTON false          // Set to true to enable FFT pre processing (CURRENTLY UNAVBAILABLE)
+#define NNON true            // Set to true to enable TinyML
+#define NORMALIZE false      // Set to true to normalize values before feeding to Neural Network
 
 #include "CircularBuffer.h"
 #include "ArduinoJson.h"
