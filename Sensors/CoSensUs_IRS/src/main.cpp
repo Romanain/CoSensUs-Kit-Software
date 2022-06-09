@@ -3,31 +3,22 @@
 #define SERIALON true        // Set tp true to turn Serial communication on, false for off
 #define DEBUG false          // Set to true to send debug information over Serial. Turn off if collecting data over Serial.
 #define DATAMODESERIAL false // Set to true to enable sending data over serial, false to deploy sensor and send data to InfluxDB
-#define PREPROCESSING false   // Set to true to enable on-board pre processing
+#define PREPROCESSING true   // Set to true to enable on-board pre processing
 #define FFTON false          // Set to true to enable FFT pre processing (CURRENTLY UNAVBAILABLE)
-#define NNON false            // Set to true to enable TinyML
-#define NORMALIZE false       // Set to true to normalize values before feeding to Neural Network
+#define NNON false           // Set to true to enable TinyML
+#define NORMALIZE false      // Set to true to normalize values before feeding to Neural Network
 
 #include "CircularBuffer.h"
 #include "ArduinoJson.h"
 
 // Sensor stream buffer setup
-#define FIFOSAMPLES 16                   // Amount of samples after which the acceleromoter's FIFO will be emptied.
-#define SAMPLES 1                       // Amount of samples before processing
-#define SAMPLING_FREQUENCY 8            // in Hz
-#define SAMPLE_SURPLUS (2 * FIFOSAMPLES) // Amount of samples that the buffer can accomodate extra before being full
-#define BUFFER_NUM 6                     // Amount of buffers (one per sensor dat point)
+#define SAMPLES 10                              // Amount of samples before processing
+#define SAMPLING_FREQUENCY 20                   // in Hz
+#define BUFFER_NUM 1                            // Amount of buffers
+#define SAMPLE_SURPLUS (SAMPLING_FREQUENCY / 2) // Amount of samples that the buffer can accomodate extra before being full
 const long sampling_interval = round(1000000 / SAMPLING_FREQUENCY);
-CircularBuffer<float, SAMPLES + SAMPLE_SURPLUS> sampleBufferAccX;
-CircularBuffer<float, SAMPLES + SAMPLE_SURPLUS> sampleBufferAccY;
-CircularBuffer<float, SAMPLES + SAMPLE_SURPLUS> sampleBufferAccZ;
-CircularBuffer<float, SAMPLES + SAMPLE_SURPLUS> sampleBufferGyrX;
-CircularBuffer<float, SAMPLES + SAMPLE_SURPLUS> sampleBufferGyrY;
-CircularBuffer<float, SAMPLES + SAMPLE_SURPLUS> sampleBufferGyrZ;
-// Array with pointers to all buffers
-CircularBuffer<float, SAMPLES + SAMPLE_SURPLUS> *buffers[BUFFER_NUM] = {
-    &sampleBufferAccX, &sampleBufferAccY, &sampleBufferAccZ,
-    &sampleBufferGyrX, &sampleBufferGyrY, &sampleBufferGyrZ};
+CircularBuffer<float, SAMPLES + SAMPLE_SURPLUS> sampleBuffer;
+CircularBuffer<float, SAMPLES + SAMPLE_SURPLUS> *buffers[BUFFER_NUM] = {&sampleBuffer};
 
 // Include functions
 #include "EZSerial.h"

@@ -8,9 +8,9 @@
 #endif
 
 // DEVICE SPECIFIC VARIABLES
-#define DEVICE "CSU_SU_01"
-#define SENSORTYPE "IMU"
-#define MEASUREMENT "speaker_movement"
+#define DEVICE "CSU_SU_02"
+#define SENSORTYPE "IRS"
+#define MEASUREMENT "iPadState"
 
 // VARIABLES INFLUX
 #define INFLUXDB_BUCKET "sensors"
@@ -18,7 +18,7 @@
 #define NTP_SERVER1 "pool.ntp.org"           // Time sync
 #define NTP_SERVER2 "time.nis.gov"           // Time sync
 #define WRITE_PRECISION WritePrecision::MS
-#define MAX_BATCH_SIZE 20
+#define MAX_BATCH_SIZE 3
 #define WRITE_BUFFER_SIZE 30
 #define uS_TO_S_FACTOR 1000000ULL
 #define TIME_TO_SLEEP 2
@@ -109,15 +109,15 @@ void sendData(void *pvParameters)
   // RUN FOREVER ---
   while (1)
   {
-    if (sampleBufferAccZ.size() >= SAMPLES)
-    { // GyrZ is last to be filled
+    if (sampleBuffer.size() >= SAMPLES)
+    {
 
 #if PREPROCESSING && !FFTON
       X_test_ptr = preProcessInputs();
-      for (int i = 0; i < N_INPUTS; i++)
-      {
-        X_test[i] = X_test_ptr[i];
-      }
+      // for (int i = 0; i < N_INPUTS; i++)
+      // {
+      //   X_test[i] = X_test_ptr[i];
+      // }
 #endif
 
       int dof = 3;
@@ -127,20 +127,20 @@ void sendData(void *pvParameters)
 #endif
 
 #if FFTON
-      for (int i = 0; i < dof; i++)
-      {
-#if PREPROCESSING
-        X_test_ptr = preProcessInputs(runFFT(buffers[i]));
-        X_test[2 * i + 0] = X_test_ptr[0];
-        X_test[2 * i + 1] = X_test_ptr[1];
-#else
-        X_test_ptr = FFTBinner(runFFT(buffers[i]));
-        for (int j = 0; j < BINS; j++)
-        {
-          X_test[i * BINS + j] = X_test_ptr[j];
-        }
-#endif
-      }
+      //       for (int i = 0; i < dof; i++)
+      //       {
+      // #if PREPROCESSING
+      //         X_test_ptr = preProcessInputs(runFFT(buffers[i]));
+      //         X_test[2 * i + 0] = X_test_ptr[0];
+      //         X_test[2 * i + 1] = X_test_ptr[1];
+      // #else
+      //         X_test_ptr = FFTBinner(runFFT(buffers[i]));
+      //         for (int j = 0; j < BINS; j++)
+      //         {
+      //           X_test[i * BINS + j] = X_test_ptr[j];
+      //         }
+      // #endif
+      //       }
 
 #endif
 
@@ -164,13 +164,22 @@ void sendData(void *pvParameters)
 #elif PREPROCESSING
       for (int i = 0; i < BUFFER_NUM; i++)
       {
-        String measurementName = String(MEASUREMENT) + "_" + String(i) + "_mean";
-        sensorStatus.addField((measurementName), X_test_ptr[i * 2]);
-        measurementName = String(MEASUREMENT) + "_" + String(i) + "_std";
-        sensorStatus.addField((measurementName), X_test_ptr[i * 2 + 1]);
+        // String measurementName = String(MEASUREMENT) + "_" + String(i) + "_mean";
+        // sensorStatus.addField((measurementName), X_test_ptr[i * 2]);
+        // measurementName = String(MEASUREMENT) + "_" + String(i) + "_std";
+        // sensorStatus.addField((measurementName), X_test_ptr[i * 2 + 1]);
+        // Serial << X_test_ptr[i * 2] << "\n";
+        if (X_test_ptr[i * 2] < 3950)
+        {
+          sensorStatus.addField(MEASUREMENT, 2);
+        }
+        else
+        {
+          sensorStatus.addField(MEASUREMENT, 1);
+        }
       }
 #else
-      for (int i = 0; i < dof; i++)
+      for (int i = 0; i < BUFFER_NUM; i++)
       {
         for (int j = 0; j < SAMPLES; j++)
         {

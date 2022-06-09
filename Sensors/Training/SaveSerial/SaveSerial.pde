@@ -130,15 +130,17 @@ void draw()
 void actionPerformed (GUIEvent e) {
   if (e.getSource() == b1) {
     startRecording = true;
+    stopRecording = false;
   } else if (e.getSource() == b2) {
     output.flush(); 
     stopRecording = true;
+    startRecording = false;
   } else if (e.getSource() == b3) {
     println("End of program");
     output.close(); // Finishes the file
     exit(); // Stops the program
   } else if (e.getSource() == b4) {
-    label = labelInput;
+    label = labelInput + '\n';
     println(label);
     COMPort.write(label);
   } else if (e.getMessage() != "") {
